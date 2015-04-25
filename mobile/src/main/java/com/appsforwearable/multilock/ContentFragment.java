@@ -36,7 +36,7 @@ public class ContentFragment extends Fragment {
     String randomKeyAsString;
     boolean writeKey = false;
     private int mCounter = 100;
-    int encryptedCode;
+//    int encryptedCode;
     String encryptedDataAsString;
 
 
