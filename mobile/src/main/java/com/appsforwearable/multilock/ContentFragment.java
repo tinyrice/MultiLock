@@ -99,6 +99,8 @@ public class ContentFragment extends Fragment {
         mActivity = activity;
     }
 
+
+
     @Override
     public void onStart() {
         super.onStart();
