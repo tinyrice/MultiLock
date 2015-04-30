@@ -4,6 +4,7 @@ package com.appsforwearable.multilock;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -31,6 +32,9 @@ public class ContentFragment extends Fragment {
     CheckBox mShowPassword, mShowToken;
     TextView mDebugTextfield1, mDebugTextfield2;
 
+    TokenGen mTokenGen;
+    int token;
+
     byte[] randomKey;
     byte[] encryptData;
     String randomKeyAsString;
@@ -44,6 +48,110 @@ public class ContentFragment extends Fragment {
 
     }
 
+
+
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mActivity = activity;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
+
+        randomKeyAsString = settings.getString(KEY_NAME, "NO KEY");
+//       String counterAsString = mCounter+"";
+
+
+        if (randomKeyAsString == "NO KEY") {
+            try {
+                mTokenGen = new TokenGen(mCounter, ENCODING_FORMAT);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            try {
+                randomKeyAsString = mTokenGen.getkey();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(mActivity, "Key not found,initiating", Toast.LENGTH_SHORT).show();
+
+        } else {
+            try {
+                mTokenGen = new TokenGen(randomKeyAsString, mCounter, ENCODING_FORMAT);
+            } catch (UnsupportedEncodingException e) {
+
+
+            }
+        }
+
+        try {
+            token = mTokenGen.getToken();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
+        /*CryptoModule mCryptoModule = new CryptoModule();
+
+        randomKeyAsString = settings.getString(KEY_NAME, "NO KEY");
+
+
+        if (randomKeyAsString == "NO KEY") {
+            randomKey = mCryptoModule.initSecretKey();
+            try {
+                randomKeyAsString = new String(randomKey, ENCODING_FORMAT);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            writeKey = true;
+        } else {
+            try {
+                randomKey = randomKeyAsString.getBytes(ENCODING_FORMAT);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        Key mKey_Binary = mCryptoModule.toKey(randomKey);
+        byte[] mc = (mCounter + "").getBytes();
+
+
+        try {
+            encryptData = mCryptoModule.encrypt(mc, mKey_Binary);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            encryptedDataAsString = new String(encryptData, ENCODING_FORMAT);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }*/
+
+
+        try {
+            mDebugTextfield1.setText("Current Key:" + new CryptoModule().showByteArray(randomKeyAsString.getBytes(ENCODING_FORMAT)));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Log.d("CONTENT", "Encrypted: " + mTokenGen.showEncryptedData());
+        mDebugTextfield2.setText("Encrypted: " + token);
+
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,70 +198,6 @@ public class ContentFragment extends Fragment {
         });
 
         return rootview;
-    }
-
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mActivity = activity;
-    }
-
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
-
-        CryptoModule mCryptoModule = new CryptoModule();
-
-        randomKeyAsString = settings.getString(KEY_NAME, "NO KEY");
-
-
-        if (randomKeyAsString == "NO KEY") {
-            randomKey = mCryptoModule.initSecretKey();
-            try {
-                randomKeyAsString = new String(randomKey, ENCODING_FORMAT);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            writeKey = true;
-        } else {
-            try {
-                randomKey = randomKeyAsString.getBytes(ENCODING_FORMAT);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        Key mKey_Binary = mCryptoModule.toKey(randomKey);
-        byte[] mc = (mCounter + "").getBytes();
-
-
-        try {
-            encryptData = mCryptoModule.encrypt(mc, mKey_Binary);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            encryptedDataAsString = new String(encryptData, ENCODING_FORMAT);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-
-        mDebugTextfield1.setText("Random Key:" + mCryptoModule.showByteArray(randomKey));
-        Log.d("CONTENT", "Encrypted: " + mCryptoModule.showByteArray(encryptData));
-        mDebugTextfield2.setText("Encrypted: " + Math.abs(encryptedDataAsString.hashCode()));
-
-
-
-
-
     }
 
     @Override

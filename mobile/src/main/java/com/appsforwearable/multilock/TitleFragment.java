@@ -21,7 +21,7 @@ public class TitleFragment extends Fragment{
     public static final String PREFS_NAME = "KeyFile";
     public static final String KEY_NAME = "SECRECTKEY";
     public static final String ENCODING_FORMAT = "ISO-8859-1";
-    byte[] randomKey;
+    //    byte[] randomKey;
     String randomKeyAsString;
     Activity mActivity;
     boolean writeKey = false;
@@ -41,7 +41,27 @@ public class TitleFragment extends Fragment{
         mLeftMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final CryptoModule mCryptoModule = new CryptoModule();
+
+               /* SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(KEY_NAME, "NO KEY");
+                editor.commit();*/
+
+                final TokenGen mTokenGen = new TokenGen(ENCODING_FORMAT);
+                try {
+                    randomKeyAsString = mTokenGen.getkey();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                Log.d("TitleFragment", "Key= " + mTokenGen.showKey());
+                writeKey = true;
+                Toast.makeText(getActivity(),
+                        "Resetting secret Key to:  " + mTokenGen.showKey() + writeKey,
+                        Toast.LENGTH_SHORT).show();
+
+
+
+/*                final CryptoModule mCryptoModule = new CryptoModule();
                 randomKey = mCryptoModule.initSecretKey();
                 try {
                     randomKeyAsString = new String(randomKey,ENCODING_FORMAT);
@@ -51,7 +71,7 @@ public class TitleFragment extends Fragment{
                 writeKey = true;
                 Toast.makeText(getActivity(),
                         "Resetting secret Key to:  "+mCryptoModule.showByteArray(randomKey)+" "+writeKey,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show();*/
             }
         });
         return view;
